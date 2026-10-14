@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import pymysql
 
 app = Flask(__name__)
@@ -33,6 +33,23 @@ def obtener_clientes():
 
     return jsonify(clientes)
 
+@app.get("/clientes/<id>")
+def obtener_cliente(id):
+    conexion = get_connection()
+    try:
+        with conexion.cursor() as cursor:
+            cursor.execute(
+                "SELECT * FROM clientes_credito WHERE id = %s",
+                (id,)
+            )
+            cliente = cursor.fetchone()
+    finally:
+        conexion.close()
+
+    if cliente is None:
+        return {"error": {"code": 404, "message": "Cliente no encontrado"}}, 404
+
+    return jsonify(cliente)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
