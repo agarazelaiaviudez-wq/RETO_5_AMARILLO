@@ -25,7 +25,7 @@ def inicio():
 @app.get("/clientes")
 def obtener_clientes():
     proposito = request.args.get("proposito")
-    limit = request.args.get("limit", default=50000, type=int)
+    limit = request.args.get("limit", default=100000, type=int)
     offset = request.args.get("offset", default=0, type=int)
 
     # Comprobamos que limit y offset sean correctos
@@ -50,12 +50,12 @@ def obtener_clientes():
     with conexion.cursor() as cursor:
         if proposito:
             cursor.execute(
-                "SELECT * FROM clientes_credito WHERE proposito = %s LIMIT %s OFFSET %s",
+                "SELECT * FROM clientes_credito WHERE proposito = %s ORDER BY row_id LIMIT %s OFFSET %s",
                 (proposito, limit, offset)
             )
         else:
             cursor.execute(
-                "SELECT * FROM clientes_credito LIMIT %s OFFSET %s",
+                "SELECT * FROM clientes_credito ORDER BY row_id LIMIT %s OFFSET %s",
                 (limit, offset)
             )
 
@@ -80,6 +80,7 @@ def obtener_cliente(id):
         return {"error": {"code": 404, "message": "Cliente no encontrado"}}, 404
 
     return jsonify(cliente), 200
+
 
 
 @app.post("/clientes")
@@ -133,10 +134,28 @@ def crear_cliente():
             }
         }, 400
 
-    # Insertar el registro en MySQL
     conexion = get_connection()
 
     with conexion.cursor() as cursor:
+
+        # Comprobar si el ID ya existe
+        cursor.execute(
+            "SELECT * FROM clientes_credito WHERE id = %s",
+            (datos["id"],)
+        )
+
+        cliente = cursor.fetchone()
+
+        if cliente is not None:
+            conexion.close()
+            return {
+                "error": {
+                    "code": 409,
+                    "message": "Ya existe un cliente con ese ID"
+                }
+            }, 409
+
+        # Insertar el nuevo registro
         cursor.execute(
             "INSERT INTO clientes_credito "
             "(id, edad, ingresos, monto_inicial, proposito) "
@@ -189,6 +208,100 @@ def eliminar_cliente(id):
 
     return {
         "mensaje": "Cliente eliminado correctamente"
+    }, 200
+
+
+@app.put("/clientes/<id>")
+def actualizar_cliente(id):
+    datos = request.get_json()
+
+    # Comprobar que recibimos datos
+    if datos is None:
+        return {
+            "error": {
+                "code": 400,
+                "message": "No se han recibido datos"
+            }
+        }, 400
+
+    # Comprobar campos obligatorios
+    campos = ["edad", "ingresos", "monto_inicial", "proposito"]
+
+    for c in campos:
+        if c not in datos:
+            return {
+                "error": {
+                    "code": 400,
+                    "message": f"Falta: {c}"
+                }
+            }, 400
+
+    # Validar valores
+    if type(datos["edad"]) != int or datos["edad"] <= 0:
+        return {
+            "error": {
+                "code": 400,
+                "message": "La edad debe ser un entero positivo"
+            }
+        }, 400
+
+    if type(datos["ingresos"]) not in [int, float] or datos["ingresos"] < 0:
+        return {
+            "error": {
+                "code": 400,
+                "message": "Los ingresos deben ser un numero no negativo"
+            }
+        }, 400
+
+    if type(datos["monto_inicial"]) not in [int, float] or datos["monto_inicial"] <= 0:
+        return {
+            "error": {
+                "code": 400,
+                "message": "El monto inicial debe ser positivo"
+            }
+        }, 400
+
+    conexion = get_connection()
+
+    with conexion.cursor() as cursor:
+
+        # Comprobar si existe el cliente
+        cursor.execute(
+            "SELECT * FROM clientes_credito WHERE id = %s",
+            (id,)
+        )
+
+        cliente = cursor.fetchone()
+
+        if cliente is None:
+            conexion.close()
+            return {
+                "error": {
+                    "code": 404,
+                    "message": "Cliente no encontrado"
+                }
+            }, 404
+
+        # Actualizar los datos
+        cursor.execute(
+            "UPDATE clientes_credito "
+            "SET edad = %s, ingresos = %s, "
+            "monto_inicial = %s, proposito = %s "
+            "WHERE id = %s",
+            (
+                datos["edad"],
+                datos["ingresos"],
+                datos["monto_inicial"],
+                datos["proposito"],
+                id
+            )
+        )
+
+    conexion.commit()
+    conexion.close()
+
+    return {
+        "mensaje": "Cliente actualizado correctamente"
     }, 200
 
 if __name__ == "__main__":
