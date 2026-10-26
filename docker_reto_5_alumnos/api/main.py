@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 import pymysql
+import requests
 
 app = Flask(__name__)
 
@@ -303,6 +304,43 @@ def actualizar_cliente(id):
     return {
         "mensaje": "Cliente actualizado correctamente"
     }, 200
+
+
+@app.get("/desempleo")
+def obtener_desempleo():
+
+    url = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m"
+
+    parametros = {
+        "geo": "ES",
+        "sex": "T",
+        "age": "TOTAL",
+        "unit": "PC_ACT",
+        "s_adj": "SA"
+    }
+
+    try:
+        response = requests.get(
+            url,
+            params=parametros,
+            timeout=15
+        )
+
+        response.raise_for_status()
+
+        datos = response.json()
+
+        return jsonify(datos), 200
+
+    except requests.RequestException:
+        return {
+            "error": {
+                "code": 502,
+                "message": "Error al consultar Eurostat"
+            }
+        }, 502
+
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
