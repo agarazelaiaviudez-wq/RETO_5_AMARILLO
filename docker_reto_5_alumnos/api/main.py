@@ -29,7 +29,7 @@ def obtener_clientes():
     limit = request.args.get("limit", default=100000, type=int)
     offset = request.args.get("offset", default=0, type=int)
 
-    # Comprobamos que limit y offset sean correctos
+    # comprobación que limit y offset sean correctos
     if limit is None or limit <= 0:
         return {
             "error": {
@@ -88,7 +88,7 @@ def obtener_cliente(id):
 def crear_cliente():
     datos = request.get_json()
 
-    # Comprobar que recibimos datos
+    # comprobar que se reciben datos
     if datos is None:
         return {
             "error": {
@@ -97,9 +97,8 @@ def crear_cliente():
             }
         }, 400
 
-    # Comprobar campos obligatorios
-    campos = ["id", "edad", "ingresos",
-              "monto_inicial", "proposito"]
+    # comprobar campos obligatorios
+    campos = ["id", "edad", "ingresos", "monto_inicial", "proposito"]
 
     for c in campos:
         if c not in datos:
@@ -110,7 +109,9 @@ def crear_cliente():
                 }
             }, 400
 
-    # Validar los valores
+    
+
+    # validar los valores
     if type(datos["edad"]) != int or datos["edad"] <= 0:
         return {
             "error": {
@@ -135,11 +136,27 @@ def crear_cliente():
             }
         }, 400
 
+    if not isinstance(datos["id"], str) or not datos["id"].strip():
+        return {
+            "error": {
+                "code": 400,
+                "message": "El ID debe ser un texto no vacio"
+            }
+        }, 400
+
+    if not isinstance(datos["proposito"], str) or not datos["proposito"].strip():
+        return {
+            "error": {
+                "code": 400,
+                "message": "El proposito debe ser un texto no vacio"
+            }
+        }, 400
+
     conexion = get_connection()
 
     with conexion.cursor() as cursor:
 
-        # Comprobar si el ID ya existe
+        # comprobar si el ID ya existe
         cursor.execute(
             "SELECT * FROM clientes_credito WHERE id = %s",
             (datos["id"],)
@@ -156,7 +173,7 @@ def crear_cliente():
                 }
             }, 409
 
-        # Insertar el nuevo registro
+        # insertar el nuevo registro
         cursor.execute(
             "INSERT INTO clientes_credito "
             "(id, edad, ingresos, monto_inicial, proposito) "
@@ -181,7 +198,7 @@ def eliminar_cliente(id):
     conexion = get_connection()
 
     with conexion.cursor() as cursor:
-        # Comprobar si existe el cliente
+        # comprobar si existe el cliente
         cursor.execute(
             "SELECT * FROM clientes_credito WHERE id = %s",
             (id,)
@@ -198,7 +215,7 @@ def eliminar_cliente(id):
                 }
             }, 404
 
-        # Eliminar el cliente
+        # eliminar el cliente
         cursor.execute(
             "DELETE FROM clientes_credito WHERE id = %s",
             (id,)
@@ -216,7 +233,7 @@ def eliminar_cliente(id):
 def actualizar_cliente(id):
     datos = request.get_json()
 
-    # Comprobar que recibimos datos
+    # comprobar que recibimos datos
     if datos is None:
         return {
             "error": {
@@ -225,7 +242,7 @@ def actualizar_cliente(id):
             }
         }, 400
 
-    # Comprobar campos obligatorios
+    # comprobar campos obligatorios
     campos = ["edad", "ingresos", "monto_inicial", "proposito"]
 
     for c in campos:
@@ -237,7 +254,7 @@ def actualizar_cliente(id):
                 }
             }, 400
 
-    # Validar valores
+    # validar valores
     if type(datos["edad"]) != int or datos["edad"] <= 0:
         return {
             "error": {
@@ -262,11 +279,19 @@ def actualizar_cliente(id):
             }
         }, 400
 
+    if not isinstance(datos["proposito"], str) or not datos["proposito"].strip():
+        return {
+            "error": {
+                "code": 400,
+                "message": "El monto inicial debe ser positivo"
+            }
+        }, 400
+
     conexion = get_connection()
 
     with conexion.cursor() as cursor:
 
-        # Comprobar si existe el cliente
+        # comprobar si existe el cliente
         cursor.execute(
             "SELECT * FROM clientes_credito WHERE id = %s",
             (id,)
@@ -283,7 +308,7 @@ def actualizar_cliente(id):
                 }
             }, 404
 
-        # Actualizar los datos
+        # actualizar los datos
         cursor.execute(
             "UPDATE clientes_credito "
             "SET edad = %s, ingresos = %s, "
@@ -305,6 +330,9 @@ def actualizar_cliente(id):
         "mensaje": "Cliente actualizado correctamente"
     }, 200
 
+
+
+#API EXTERNA
 
 @app.get("/desempleo")
 def obtener_desempleo():
