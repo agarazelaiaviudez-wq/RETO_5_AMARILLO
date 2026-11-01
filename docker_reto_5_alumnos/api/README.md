@@ -1,8 +1,8 @@
 # RETO_5_AMARILLO
 
-## API de préstamos - Reto 5
+## API REST de préstamos - Reto 5
 
-En este reto hemos creado una **API REST con Python y Flask** para consultar y modificar información de préstamos guardada en una base de datos **MySQL**. También hemos utilizado una API externa de **Eurostat** para consultar datos de desempleo de España.
+En este reto hemos creado una **API REST con Python y Flask** para consultar y modificar información de préstamos guardada en una base de datos **MySQL**. También hemos utilizado una API externa de **Eurostat** para consultar datos de desempleo de España. Los datos se trabajan con formato JSON.
 
 Hemos probado las peticiones con **Postman** y hemos utilizado los datos obtenidos de nuestra API para trabajar en **Power BI**.
 
@@ -17,15 +17,15 @@ Hemos probado las peticiones con **Postman** y hemos utilizado los datos obtenid
 
 ## Rutas de la API
 
-| Método | Ruta               | Función                                     |
-| ------- | ------------------ | -------------------------------------------- |
-| GET     | `/`              | Comprobar que la API está funcionando.      |
-| GET     | `/clientes`      | Obtener la lista de préstamos.              |
-| GET     | `/clientes/<id>` | Consultar un préstamo por su identificador. |
-| POST    | `/clientes`      | Añadir un nuevo préstamo.                  |
-| PUT     | `/clientes/<id>` | Modificar los datos de un préstamo.         |
-| DELETE  | `/clientes/<id>` | Eliminar un préstamo.                       |
-| GET     | `/desempleo`     | Consultar los datos de Eurostat.             |
+| Método | Ruta               | Función                                     | Respuesta habitual |
+| ------- | ------------------ | -------------------------------------------- | ------------------ |
+| GET     | `/`              | Comprobar que la API está funcionando.      | 200                |
+| GET     | `/clientes`      | Obtener la lista de préstamos.              | 200                |
+| GET     | `/clientes/<id>` | Consultar un préstamo por su identificador. | 200 / 404          |
+| POST    | `/clientes`      | Añadir un nuevo préstamo.                  | 201 / 400 / 409    |
+| PUT     | `/clientes/<id>` | Modificar los datos de un préstamo.         | 200 / 400 / 404    |
+| DELETE  | `/clientes/<id>` | Eliminar un préstamo.                       | 200 / 404          |
+| GET     | `/desempleo`     | Consultar los datos de Eurostat.             | 200 / 502          |
 
 ## Cómo hacer las pruebas
 
