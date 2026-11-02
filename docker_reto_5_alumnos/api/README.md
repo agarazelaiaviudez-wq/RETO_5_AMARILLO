@@ -15,6 +15,20 @@ Hemos probado las peticiones con **Postman** y hemos utilizado los datos obtenid
 - **Postman:** para probar que funcionan las rutas.
 - **Power BI:** para analizar los préstamos de Automóvil.
 
+## Cómo iniciar la API
+
+El código de nuestra API está en el **archivo main.py.**
+
+Para ponerla en marcha, seguimos estos pasos:
+
+1. Abrimos una **terminal** en la carpeta del proyecto.
+2. Entramos en la **carpeta** donde están los archivos de **Docker**:
+   cd docker_reto_5_alumnos
+3. **Abrimos Docker Desktop** y comprobamos que está funcionando.
+4. En la misma terminal ejecutamos: **docker compose up**
+5. Dejamos la terminal abierta mientras usamos la API. Cuando los servicios estén iniciados, podemos comprobar que funciona entrando en: `http://127.0.0.1:8000`
+   Si todo está correcto, aparece el mensaje **API funcionando**.
+
 ## Rutas de la API
 
 | Método | Ruta               | Función                                     | Respuesta habitual |
@@ -93,7 +107,7 @@ Como POST, PUT y DELETE pueden cambiar los datos de MySQL, así que las pruebas 
 La ruta `GET /desempleo` consulta la API de Eurostat con la librería `requests`.
 
 ```text
-GET http://localhost:8000/desempleo
+GET http://127.0.0.1:8000/desempleo
 ```
 
 En nuestro código utilizamos estos parámetros:
