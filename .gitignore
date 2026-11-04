@@ -1,3 +1,5 @@
 datos_automovil.xlsx
 datos/Diccionario_Variables_Alumnos.xlsx
 datos/Prestamos_Data_Alumnos_v5.xlsx
+__pycache__/
+*.pyc
