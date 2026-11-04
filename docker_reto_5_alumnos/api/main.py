@@ -283,7 +283,7 @@ def actualizar_cliente(id):
         return {
             "error": {
                 "code": 400,
-                "message": "El monto inicial debe ser positivo"
+                "message": "El monto inicial no puede estar vacio"
             }
         }, 400
 
